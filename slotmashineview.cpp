@@ -213,6 +213,7 @@ void SlotMashineView::printBase() {
     "  ┌─┴──────┘---└──────┴─┐   \n"
     "  │                     │   \n"
     "  │                     │   \n"
+    "  │                     │   \n"
     "  └─────────────────────┘   \n"
   );
   attron(A_BOLD);
@@ -531,6 +532,7 @@ void SlotMashineView::printMoney() {
   mvprintw(21, 4, "Coins:%13i", this->slotMashine->money);
   attroff(A_BOLD);
   mvprintw(22, 4, "Last: %13i", this->slotMashine->lastWin);
+  mvprintw(23, 4, "Max:  %13i", this->slotMashine->max);
   attroff(COLOR_PAIR(STYLE_MONEY));
 }
 

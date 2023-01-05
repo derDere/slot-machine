@@ -20,6 +20,7 @@
 #endif
 
 #define FPS 30
+#define START_COINS 15
 
 using namespace std;
 
@@ -34,6 +35,7 @@ void printHelp();
 int main(int argc, const char* argv[]) {
 
   const char* profile = "default";
+  bool reset_profile = false;
 
   // Check Command Line Arguments ----------
   for(int i = 0; i < argc; i++) {
@@ -44,7 +46,11 @@ int main(int argc, const char* argv[]) {
       (arg == "help") ||
       (arg == "--help")
     ) {
-      cout << "Usage: slot-machine" << endl
+      cout << "Usage: slot-machine [options]" << endl
+           << endl
+           << "Options:" << endl
+           << "  -p <profile>      Changes to another profile." << endl
+           << "  -r                Resets the current profile." << endl
            << endl
            << "About:" << endl
            << "  Just play a bit slot mashine." << endl
@@ -58,7 +64,10 @@ int main(int argc, const char* argv[]) {
       return 0;
     }
     else if (arg == "-p" && argc > (i + 1)) {
-      profile = argv[i + 1];
+      profile = argv[++i];
+    }
+    else if (arg == "-r") {
+      reset_profile = true;
     }
     else {
         // unknown argument
@@ -84,7 +93,9 @@ int main(int argc, const char* argv[]) {
   // TODO: Check Size ############################################
 
   // Draw Start Screen ----------
+  attron(A_DIM);
   mvprintw(0, 0, "Profile: %s", profile);
+  attroff(A_DIM);
   printHelp();
   attron(A_BOLD);
   mvaddstr(11, 7, "Press any key to start...");
@@ -98,8 +109,13 @@ int main(int argc, const char* argv[]) {
   // Create Objects
   unsigned int tick = 0;
   bool showHelp = false;
-  SlotMashine* slotMashine = new SlotMashine(string(profile), 15);
+  SlotMashine* slotMashine = new SlotMashine(string(profile), START_COINS);
   SlotMashineView* slotMashineView = new SlotMashineView(slotMashine);
+
+  // Reset provile if option was given
+  if (reset_profile) {
+    slotMashine->money = START_COINS;
+  }
 
   // Start main loop
   bool run = true;

@@ -56,6 +56,7 @@ class SlotMashine {
     int rnd_delay[SLOTS];
     int money;
     int lastWin;
+    int max;
     string profile;
 
     SlotMashine(string, int);
@@ -67,8 +68,8 @@ class SlotMashine {
     void spin();
     void stop();
 
-    void load_coins();
-    void save_coins();
+    void loadCoins();
+    void saveCoins();
 
   private:
     void checkWin();

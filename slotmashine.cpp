@@ -39,6 +39,7 @@ void SlotMashine::getSlotValue(int slot, int& duo, int& tripple) {
 }
 
 SlotMashine::SlotMashine(string profile, int start_coins) {
+  this->profile = profile;
   for(int i = 0; i < SLOTS; i++) {
     this->wheels[i] = rand() % WHEEL_SIZE;
     this->lights[i] = false;
@@ -50,10 +51,10 @@ SlotMashine::SlotMashine(string profile, int start_coins) {
   this->waiting = true;
   this->taking_coin = false;
   this->money = start_coins;
-  this->load_coins();
+  this->loadCoins();
   this->stopping = false;
   this->lastWin = 0;
-  this->profile = profile;
+  this->max = start_coins;
 }
 
 SlotMashine::~SlotMashine() {
@@ -120,7 +121,7 @@ void SlotMashine::insertCoin() {
     this->money--;
     this->waiting = false;
     this->taking_coin = true;
-    this->save_coins();
+    this->saveCoins();
   }
 }
 
@@ -175,7 +176,11 @@ void SlotMashine::checkWin() {
 
   this->money += coins;
 
-  this->save_coins();
+  if (this->money > this->max) {
+    this->max = this->money;
+  }
+
+  this->saveCoins();
 }
 
 bool dirExists(const char *path) {
@@ -195,33 +200,21 @@ string SlotMashine::filePath() {
   if (!dirExists(path.c_str())) {
     filesystem::create_directory(path);
   }
-  path += this->profile;
+  path = path + this->profile;
   return path;
 }
 
-#include <stdlib.h>
-
-void SlotMashine::load_coins() {
+void SlotMashine::loadCoins() {
   ifstream coin_file(this->filePath());
-  //if (coin_file.good()) {
-  int coins = 55;
-  coin_file >> coins;
-  endwin();
-  cout << "CCC: " << coins << endl;
-  cout << "CCC: " << coins << endl;
-  cout << "CCC: " << coins << endl;
-  cout << "CCC: " << coins << endl;
-  cout << "CCC: " << coins << endl;
-  cout << "CCC: " << coins << endl;
-  exit(0);
-  this->money = coins;
-  coin_file.close();
-  //}
+  if (coin_file.good()) {
+    coin_file >> this->money >> this->max;
+    coin_file.close();
+  }
 }
 
-void SlotMashine::save_coins() {
+void SlotMashine::saveCoins() {
   ofstream coin_file(this->filePath(), ios::out | fstream::trunc);
-  coin_file << this->money << " " << endl;
+  coin_file << this->money << " " << this->max << endl;
   coin_file.close();
 }
 
