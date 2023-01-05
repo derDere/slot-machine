@@ -1,6 +1,7 @@
 #ifndef MAIN_CPP
 #define MAIN_CPP
 
+#include <string>
 #include <iostream>
 //#include <limits>
 //#include <iomanip>
@@ -11,21 +12,28 @@
 #include "slotmashine.hpp"
 
 #ifdef _WIN32
-//#include <Windows.h>
+#include <Windows.h>
+#define SLEEP(ms) Sleep(ms)
 #else
-//#include <unistd.h>
+#include <unistd.h>
+#define SLEEP(ms) usleep(ms * 1000)
 #endif
+
+#define FPS 30
 
 using namespace std;
 
 void quit();
+void printHelp();
 
 /**
  * Project: slot-machine
  * Creator: deremer
  * Creation Date: Tue Sep 13 11:31:51 CEST 2022
  */
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
+
+  const char* profile = "default";
 
   // Check Command Line Arguments ----------
   for(int i = 0; i < argc; i++) {
@@ -44,11 +52,15 @@ int main(int argc, char* argv[]) {
            << "Key bindings:" << endl
            << "  SPACE       leaver down" << endl
            << "  c           insert coin" << endl
-           << "  h           show help" << endl
+           << "  h           show/hide help" << endl
            << "  q           quit" << endl
            << endl;
       return 0;
-    } else {
+    }
+    else if (arg == "-p" && argc > (i + 1)) {
+      profile = argv[i + 1];
+    }
+    else {
         // unknown argument
     }
   }
@@ -63,14 +75,66 @@ int main(int argc, char* argv[]) {
   noecho();
   cbreak();
   keypad(stdscr, true);
-  mousemask(BUTTON1_CLICKED, NULL); //ALL_MOUSE_EVENTS, NULL);
+  //mousemask(BUTTON1_CLICKED, NULL); //ALL_MOUSE_EVENTS, NULL);
+  SlotMashineView::Init();
 
   // Check Size ----------
-  int cols, rows;
-  getmaxyx(stdscr, rows, cols);
+  //int cols, rows;
+  //getmaxyx(stdscr, rows, cols);
   // TODO: Check Size ############################################
 
   // Draw Start Screen ----------
+  mvprintw(0, 0, "Profile: %s", profile);
+  printHelp();
+  attron(A_BOLD);
+  mvaddstr(11, 7, "Press any key to start...");
+  attroff(A_BOLD);
+  getch();
+  nodelay(win, true);
+
+  // Clear screen ----------
+  clear();
+
+  // Create Objects
+  unsigned int tick = 0;
+  bool showHelp = false;
+  SlotMashine* slotMashine = new SlotMashine(string(profile), 15);
+  SlotMashineView* slotMashineView = new SlotMashineView(slotMashine);
+
+  // Start main loop
+  bool run = true;
+  int key = '?';
+  while (run) {
+    SLEEP(1000 / FPS);
+    if (showHelp) {
+      printHelp();
+    } else {
+      slotMashineView->print();
+    }
+    key = getch();
+    switch(key) {
+      case ' ':
+        slotMashine->pullLever();
+        break;
+      case 'c':
+        slotMashine->insertCoin();
+        break;
+      case 'h':
+        clear();
+        showHelp = !showHelp;
+        break;
+      case 'q':
+        run = false;
+        break;
+    }
+    key = '?';
+    slotMashine->update(tick);
+    slotMashineView->update(tick++);
+  }
+  return 0;
+}
+
+void printHelp() {
   attron(A_BOLD | A_UNDERLINE);
   mvaddstr( 3, 5, "Slot Machine");
   attroff(A_UNDERLINE);
@@ -79,37 +143,7 @@ int main(int argc, char* argv[]) {
   mvaddstr( 6, 9, "SPACE  leaver down");
   mvaddstr( 7, 9, "q      quit");
   mvaddstr( 8, 9, "c      insert coin");
-  mvaddstr( 9, 9, "h      show help");
-  attron(A_BOLD);
-  mvaddstr(11, 7, "Press any key to start...");
-  attroff(A_BOLD);
-  getch();
-  nodelay(win, true);
-
-  // Clear screen ----------
-  for (int i = 0; i < 12; i++) {
-    mvaddstr(i, 5, "                             ");
-  }
-
-  // Create Objects
-  SlotMashine* slotMashine = new SlotMashine(15);
-  SlotMashineView* slotMashineView = new SlotMashineView(slotMashine);
-
-  // Start main loop
-  bool run = true;
-  int key = ' ';
-  while (run) {
-    slotMashineView->printBase();
-    key = getch();
-    switch(key) {
-      case 'q':
-        run = false;
-        break;
-    }
-    key = ' ';
-  }
-
-  return 0;
+  mvaddstr( 9, 9, "h      show/hide help");
 }
 
 void quit() {

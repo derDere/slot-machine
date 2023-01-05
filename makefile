@@ -5,10 +5,14 @@ All: $(APP)
 	@echo Done
 
 $(APP): $(SRC)
-	g++ -o $(APP) $(SRC) -lncursesw
+	g++ -o $(APP) $(SRC) -lncursesw -std=c++17
+
+debug:
+	g++ -g -o $(APP) $(SRC) -lncursesw -std=c++17
+	gdb -ex run $(APP)
 
 test: $(APP)
-	./$(APP) debug
+	./$(APP)
 
 install: $(APP)
 	cp $(APP) /usr/local/bin/$(APP)
