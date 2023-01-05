@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+# Executables
+slot-machine
