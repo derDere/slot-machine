@@ -29,6 +29,7 @@ q           quit
 ```
 
 ## Installation
+Be sure your terminal is able to display all used emojis. (You may have to change to an advanced font! I suggest nerdfonts.com)
 Easy clone make install xD. Here are the commands.
 
 ```
@@ -36,6 +37,7 @@ git clone https://github.com/derDere/slot-machine.git
 cd slot-machine
 sudo make install
 ```
+(Be sure to install all dependencies necessaire to build the application. the compiler will tell you. most important is ncursesw. The installation is different depending on your distro and package manager.)
 
 ## Deinstallation
 
